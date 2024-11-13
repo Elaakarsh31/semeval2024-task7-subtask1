@@ -85,7 +85,21 @@ def predict_and_save_res(
 
     f1_metric = evaluate.load("./f1.py")
 
-    model = AutoModelForSeq2SeqLM.from_pretrained(args.model_checkpoint)
+    if args.model_checkpoint:
+        model = AutoModelForSeq2SeqLM.from_pretrained(args.model_checkpoint)
+
+    if args.output_model_path:
+        try:
+            model = AutoModelForSeq2SeqLM.from_pretrained(
+                args.output_model_path,
+                local_files_only=True,  # Ensure loading from local files
+                trust_remote_code=True,
+                device_map="auto",
+            )
+            print(f"Loaded model from local files: {args.output_model_path}")
+        except Exception as e:
+            print(f"Error loading model: {str(e)}")
+            raise
 
     decoded_preds = get_predict(
         model=model,
@@ -325,14 +339,14 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, help="set seed")
     parser.add_argument(
         "--model_checkpoint",
-        default="./qnli_flan_t5/checkpoint-1950",
+        default="",
         help="model checkpoint's path",
     )
     parser.add_argument("--task", default="eval", help="train or predict")
     parser.add_argument(
         "--evaluation_strategy", default="epoch", help="evaluation_strategy"
     )
-    parser.add_argument("--save_strategy", default="epoch", help="save_strategy")
+    parser.add_argument("--save_strategy", default="no", help="save_strategy")
     parser.add_argument("--per_device_train_batch_size", type=int, default=10)
     parser.add_argument("--per_device_eval_batch_size", type=int, default=10)
     parser.add_argument("--lr", type=float, default=5e-7)
