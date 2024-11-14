@@ -94,6 +94,7 @@ def train_and_evaluate(args, tokenizer, tokenized_dataset):
     torch.cuda.empty_cache()
     # Start training
     trainer.train()
+    trainer.save_model(args.output_model_path)
 
 
 def predict_and_save_res(

@@ -98,8 +98,7 @@ def train_and_evaluate(args, tokenizer, tokenized_dataset):
     torch.cuda.empty_cache()
     # Start training
     trainer.train()
-    model.save_pretrained(args.output_model_path)
-    tokenizer.save_pretrained(args.output_model_path)
+    trainer.save_model(args.output_model_path)
 
 
 def predict_and_save_res(
@@ -334,7 +333,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_checkpoint", default="", help="model checkpoint's path"
     )
-    # parser.add_argument("--task", default="train", help="train or predict")
     parser.add_argument("--task", default="predict", help="train or predict")
     parser.add_argument(
         "--evaluation_strategy", default="epoch", help="evaluation_strategy"

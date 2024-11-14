@@ -349,7 +349,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--evaluation_strategy", default="epoch", help="evaluation_strategy"
     )
-    parser.add_argument("--save_strategy", default="epoch", help="save_strategy")
+    parser.add_argument("--save_strategy", default="no", help="save_strategy")
     parser.add_argument("--per_device_train_batch_size", type=int, default=20)
     parser.add_argument("--per_device_eval_batch_size", type=int, default=20)
     parser.add_argument("--lr", type=float, default=3e-5)
