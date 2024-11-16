@@ -34,4 +34,4 @@ if __name__ == '__main__':
     data = pd.read_json(path_or_buf=file_path)
     data['question_text'] = data[column_name].apply(func=convert_to_text)
     # save new file in CSV
-    data.to_csv(f'{file_path.split(".")[0]}.csv', index=False)
+    data.to_json(f'{file_path.split(".")[0]}.csv', index=False)
