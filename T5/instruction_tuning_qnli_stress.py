@@ -169,7 +169,18 @@ def predict_and_save_res(
 
     f1_metric = evaluate.load("./f1.py")
 
-    model = AutoModelForSeq2SeqLM.from_pretrained(args.model_checkpoint)
+    if args.output_model_path:
+        try:
+            model = AutoModelForSeq2SeqLM.from_pretrained(
+                args.output_model_path,
+                local_files_only=True,  # Ensure loading from local files
+                trust_remote_code=True,
+                device_map="auto",
+            )
+            print(f"Loaded model from local files: {args.output_model_path}")
+        except Exception as e:
+            print(f"Error loading model: {str(e)}")
+            raise
 
     decoded_preds = get_predict(
         model=model,
