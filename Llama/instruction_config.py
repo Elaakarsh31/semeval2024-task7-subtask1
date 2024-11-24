@@ -2,6 +2,7 @@ class instr_template:
     def __init__(self):
         self.input_template = {}
         self.label_template = {}
+        self.chat_template = {}
 
     def load_qp_template(self):
         self.input_template[
@@ -114,11 +115,33 @@ Option 2: faster accelerating
 Choose a correct answer to the following questions
 Question: {{question}}
 Option 1: {{option1}}
-Option 2: {{option2}}"""
+Option 2: {{option2}}
+Answer: """
 
         self.input_template[
             "instr"
         ] = f"""Choose a correct answer to the following questions
 Question: {{question}}
 Option 1: {{option1}}
-Option 2: {{option2}}"""
+Option 2: {{option2}}
+Answer: """
+
+    def load_llama_chat_template(self):
+        self.chat_template[
+            "train"
+        ] = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+{SYSTEM}<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{INPUT}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+{OUTPUT}<|eot_id|>"""
+        self.chat_template[
+            "test"
+        ] = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+{SYSTEM}<|eot_id|><|start_header_id|>user<|end_header_id|>
+
+{INPUT}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+"""
