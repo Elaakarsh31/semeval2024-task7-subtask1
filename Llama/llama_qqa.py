@@ -106,13 +106,12 @@ def train(args, tokenizer, dataset):
     print(f"Trainging end..")
 
 
-def predict_and_save_res(args, tokenizer=None, tokenized_dataset=None):
+def predict_and_save_res(args, tokenizer=None, dataset=None):
     def get_predict(
         model,
-        tokenized_dataset,
+        dataset,
         batch_size=4,
         max_new_tokens=128,
-        sample_set="test",
         device="cuda",
     ):
         """
@@ -120,30 +119,23 @@ def predict_and_save_res(args, tokenizer=None, tokenized_dataset=None):
         """
 
         def collate_fn(batch):
-            input_ids = [torch.tensor(example["input_ids"]) for example in batch]
-            attention_mask = [
-                torch.tensor(example["attention_mask"]) for example in batch
-            ]
-            input_ids = pad_sequence(
-                input_ids, batch_first=True, padding_value=tokenizer.pad_token_id
+            texts = [example["text"] for example in batch]
+            encoding = tokenizer(
+                texts, padding=True, truncation=True, return_tensors="pt"
             )
-            attention_mask = pad_sequence(
-                attention_mask, batch_first=True, padding_value=tokenizer.pad_token_id
-            )
-            return input_ids, attention_mask
+            input_ids = encoding.input_ids
+            attention_mask = encoding.attention_mask
+            return {"input_ids": input_ids, "attention_mask": attention_mask}
 
-        dataloader = DataLoader(
-            tokenized_dataset[sample_set], batch_size=batch_size, collate_fn=collate_fn
-        )
+        dataloader = DataLoader(dataset, batch_size=batch_size, collate_fn=collate_fn)
         model.to(device)
         print("Model loaded to: ", device)
         preds_out = []
         marker = "assistant\n\n"
-
-        for inputs, attention_mask in tqdm(dataloader):
+        for batch in tqdm(dataloader):
+            inputs, attention_mask = batch["input_ids"], batch["attention_mask"]
             inputs = inputs.to(device)
             attention_mask = attention_mask.to(device)
-
             output_ids = model.generate(
                 input_ids=inputs,
                 attention_mask=attention_mask,
@@ -151,15 +143,16 @@ def predict_and_save_res(args, tokenizer=None, tokenized_dataset=None):
             )
 
             decode_pred_ans = tokenizer.batch_decode(
-                output_ids, skip_special_tokens=True
+                output_ids,
+                skip_special_tokens=True,
             )
-
-            if marker in decode_pred_ans:
-                marker_index = decode_pred_ans.index(marker) + len(marker)
-                extracted_text = decode_pred_ans[marker_index:].strip()
-            else:
-                extracted_text = ""
-            preds_out += extracted_text
+            for instance in decode_pred_ans:
+                if marker in instance:
+                    marker_index = instance.index(marker) + len(marker)
+                    extracted_text = instance[marker_index:].strip()
+                else:
+                    extracted_text = ""
+                preds_out.append(extracted_text)
 
         preds = [0 if item.startswith("Option 1") else 1 for item in preds_out]
         return preds, preds_out
@@ -173,20 +166,15 @@ def predict_and_save_res(args, tokenizer=None, tokenized_dataset=None):
         load_in_4bit=args.load_in_4bit,
     )
     FastLanguageModel.for_inference(model)
-
     decoded_preds, decoded_preds_out = get_predict(
         model=model,
-        tokenized_dataset=tokenized_dataset,
+        dataset=dataset,
         batch_size=25,
         max_new_tokens=25,
-        sample_set="test",
         device="cuda",
     )
 
-    labels = [
-        0 if sample["answer"].startswith("Option 1") else 1
-        for sample in tokenized_dataset
-    ]
+    labels = [0 if sample["answer"].startswith("Option 1") else 1 for sample in dataset]
 
     macro_f1 = f1_metric.compute(
         predictions=decoded_preds, references=labels, average="macro"
@@ -208,7 +196,7 @@ def predict_and_save_res(args, tokenizer=None, tokenized_dataset=None):
             "option2": sample["Option2"],
             "answer": sample["answer"],
         }
-        for sample in tokenized_dataset
+        for sample in dataset
     ]
 
     for res, preds, preds_out in zip(save_res, decoded_preds, decoded_preds_out):
