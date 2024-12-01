@@ -205,27 +205,39 @@ def predict_and_save_res(
     with open(json_file_path, "w", encoding="utf-8") as json_file:
         json.dump(save_res, json_file, ensure_ascii=False)
 
+    return micro_f1, macro_f1
+
 
 def run(args):
     def preprocess_function(sample):
-        if args.is_digit_base:
+        if args.is_text_base:
             inputs = [
                 input_template.format(
                     question=question, option1=option1, option2=option2
                 )
                 for question, option1, option2 in zip(
-                    sample["question_char"], sample["Option1"], sample["Option2"]
+                    sample["question_text"], sample["Option1"], sample["Option2"]
                 )
             ]
         else:
-            inputs = [
-                input_template.format(
-                    question=question, option1=option1, option2=option2
-                )
-                for question, option1, option2 in zip(
-                    sample["question"], sample["Option1"], sample["Option2"]
-                )
-            ]
+            if args.is_digit_base:
+                inputs = [
+                    input_template.format(
+                        question=question, option1=option1, option2=option2
+                    )
+                    for question, option1, option2 in zip(
+                        sample["question_char"], sample["Option1"], sample["Option2"]
+                    )
+                ]
+            else:
+                inputs = [
+                    input_template.format(
+                        question=question, option1=option1, option2=option2
+                    )
+                    for question, option1, option2 in zip(
+                        sample["question"], sample["Option1"], sample["Option2"]
+                    )
+                ]
 
         model_inputs = tokenizer(inputs, truncation=False)
 
@@ -301,7 +313,7 @@ def run(args):
                 "answer",
             ],
         )
-        predict_and_save_res(args, tokenizer, tokenized_dataset, dataset_test)
+        return predict_and_save_res(args, tokenizer, tokenized_dataset, dataset_test)
 
 
 if __name__ == "__main__":
@@ -352,6 +364,7 @@ if __name__ == "__main__":
         "--output_file_name", default="save_res_qqa.json", help="output file's name"
     )
     parser.add_argument("--output_dir", default="save_res", help="output file's dir")
+    parser.add_argument("--is_text_base", default=False, help="whether to use text")
     args = parser.parse_args()
 
     run(args)

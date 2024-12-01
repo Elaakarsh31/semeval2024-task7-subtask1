@@ -23,6 +23,23 @@ from tqdm import tqdm
 from util import *
 
 from instruction_config import *
+from peft import LoraConfig, get_peft_model, TaskType
+
+
+def get_lora_model(args):
+    model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
+    lora_config = LoraConfig(
+        task_type=TaskType.SEQ_2_SEQ_LM,
+        r=args.rank,
+        lora_alpha=args.lora_alpha,
+        lora_dropout=0.1,
+        target_modules=["q", "v"],  # for T5 attention layers
+        bias="none",
+    )
+
+    model = get_peft_model(model, lora_config)
+    model.print_trainable_parameters()
+    return model
 
 
 def train_and_evaluate(args, tokenizer, tokenized_dataset):
@@ -52,9 +69,9 @@ def train_and_evaluate(args, tokenizer, tokenized_dataset):
         result["macro_f1"] = macro_f1["f1"]
         return result
 
-    model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
+    model = get_lora_model(args)
 
-    f1_metric = evaluate.load("./f1.py")
+    f1_metric = evaluate.load(args.f1_metric_pth)
 
     label_pad_token_id = -100
 
@@ -150,9 +167,9 @@ def predict_and_save_res(
         preds = list(map(int, preds))
         return preds
 
-    f1_metric = evaluate.load("./f1.py")
+    f1_metric = evaluate.load(args.f1_metric_pth)
 
-    model = AutoModelForSeq2SeqLM.from_pretrained(args.model_checkpoint)
+    model = AutoModelForSeq2SeqLM.from_pretrained(args.output_model_path)
 
     decoded_preds = get_predict(
         model=model,
@@ -322,6 +339,11 @@ if __name__ == "__main__":
         "--output_file_name", default="save_res_qp.json", help="output file's name"
     )
     parser.add_argument("--output_dir", default="save_res", help="output file's dir")
+    parser.add_argument(
+        "--f1_metric_pth", type=str, default="./f1.py", help="f1 metric path"
+    )
+    parser.add_argument("--rank", type=int, default=8, help="rank")
+    parser.add_argument("--lora_alpha", type=float, default=16, help="lora_alpha")
     args = parser.parse_args()
 
     run(args)

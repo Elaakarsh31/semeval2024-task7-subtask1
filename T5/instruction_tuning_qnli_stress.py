@@ -226,11 +226,12 @@ def predict_and_save_res(
     print("save predict res to: " + json_file_path)
     with open(json_file_path, "w", encoding="utf-8") as json_file:
         json.dump(save_res, json_file, ensure_ascii=False)
+    return micro_f1, macro_f1
 
 
 def run(args):
     def preprocess_function(sample):
-        if args.is_digit_base:
+        if args.is_text_base:
             inputs = [
                 input_template.format(
                     statement1=statement1.strip(),
@@ -238,22 +239,36 @@ def run(args):
                     options=options.lower().strip(),
                 )
                 for statement1, statement2, options in zip(
-                    sample["statement1_char"],
-                    sample["statement2_char"],
+                    sample["statement1_text"],
+                    sample["statement2_text"],
                     sample["options"],
                 )
             ]
         else:
-            inputs = [
-                input_template.format(
-                    statement1=statement1.strip(),
-                    statement2=statement2.strip(),
-                    options=options.lower().strip(),
-                )
-                for statement1, statement2, options in zip(
-                    sample["statement1"], sample["statement2"], sample["options"]
-                )
-            ]
+            if args.is_digit_base:
+                inputs = [
+                    input_template.format(
+                        statement1=statement1.strip(),
+                        statement2=statement2.strip(),
+                        options=options.lower().strip(),
+                    )
+                    for statement1, statement2, options in zip(
+                        sample["statement1_char"],
+                        sample["statement2_char"],
+                        sample["options"],
+                    )
+                ]
+            else:
+                inputs = [
+                    input_template.format(
+                        statement1=statement1.strip(),
+                        statement2=statement2.strip(),
+                        options=options.lower().strip(),
+                    )
+                    for statement1, statement2, options in zip(
+                        sample["statement1"], sample["statement2"], sample["options"]
+                    )
+                ]
 
         model_inputs = tokenizer(inputs, truncation=False)
 
@@ -324,7 +339,7 @@ def run(args):
                 "answer",
             ],
         )
-        predict_and_save_res(args, tokenizer, tokenized_dataset, dataset_test)
+        return predict_and_save_res(args, tokenizer, tokenized_dataset, dataset_test)
 
 
 if __name__ == "__main__":
@@ -375,6 +390,7 @@ if __name__ == "__main__":
         "--output_file_name", default="save_res_qnli.json", help="output file's name"
     )
     parser.add_argument("--output_dir", default="./save_res", help="output file's dir")
+    parser.add_argument("--is_text_base", default=False, help="whether to use text")
     args = parser.parse_args()
 
     run(args)
