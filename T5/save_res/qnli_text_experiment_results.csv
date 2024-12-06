@@ -1,0 +1,4 @@
+,RTE_Quant_converted,RTE_Quant_converted,NewsNLI_converted,NewsNLI_converted,RedditNLI_converted,RedditNLI_converted,AWPNLI_converted,AWPNLI_converted
+,micro_f1,macro_f1,micro_f1,macro_f1,micro_f1,macro_f1,micro_f1,macro_f1
+icl_text,64.7059,63.5714,72.1649,71.8659,72.0,48.0287,52.0548,38.7731
+inst_text,64.7059,63.5714,73.1959,72.9631,68.0,45.4971,52.0548,34.2342
