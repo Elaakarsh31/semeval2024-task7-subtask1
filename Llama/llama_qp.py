@@ -212,22 +212,26 @@ def predict_and_save_res(args, tokenizer=None, dataset=None):
 
 def run(args):
     def preprocess_function(sample):
-        # add prefix to the input
-        if args.is_digit_base:
-            if args.dataset_type == "headline":
-                inputs = [
-                    input_template.format(masked=masked)
-                    for masked in sample["title_char"]
-                ]
+        if args.is_text_base:
+            inputs = [
+                input_template.format(masked=masked) for masked in sample["masked_text"]
+            ]
+        else:
+            if args.is_digit_base:
+                if args.dataset_type == "headline":
+                    inputs = [
+                        input_template.format(masked=masked)
+                        for masked in sample["title_char"]
+                    ]
+                else:
+                    inputs = [
+                        input_template.format(masked=masked)
+                        for masked in sample["comment_char"]
+                    ]
             else:
                 inputs = [
-                    input_template.format(masked=masked)
-                    for masked in sample["comment_char"]
+                    input_template.format(masked=masked) for masked in sample["masked"]
                 ]
-        else:
-            inputs = [
-                input_template.format(masked=masked) for masked in sample["masked"]
-            ]
 
         labels = [str(magnitude) for magnitude in sample["magnitude"]]
 
@@ -364,6 +368,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--rank", type=int, default=8, help="rank")
     parser.add_argument("--lora_alpha", type=float, default=16, help="lora_alpha")
+    parser.add_argument("--is_text_base", type=bool, default=False, help="is_text_base")
     args = parser.parse_args()
 
     run(args)

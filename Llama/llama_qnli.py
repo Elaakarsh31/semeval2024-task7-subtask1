@@ -187,7 +187,7 @@ def predict_and_save_res(args, tokenizer, dataset):
 
 def run(args):
     def preprocess_function(sample):
-        if args.is_digit_base:
+        if args.is_text_base:
             inputs = [
                 input_template.format(
                     statement1=statement1.strip(),
@@ -195,22 +195,36 @@ def run(args):
                     options=options.lower().strip(),
                 )
                 for statement1, statement2, options in zip(
-                    sample["statement1_char"],
-                    sample["statement2_char"],
+                    sample["statement1_text"],
+                    sample["statement2_text"],
                     sample["options"],
                 )
             ]
         else:
-            inputs = [
-                input_template.format(
-                    statement1=statement1.strip(),
-                    statement2=statement2.strip(),
-                    options=options.lower().strip(),
-                )
-                for statement1, statement2, options in zip(
-                    sample["statement1"], sample["statement2"], sample["options"]
-                )
-            ]
+            if args.is_digit_base:
+                inputs = [
+                    input_template.format(
+                        statement1=statement1.strip(),
+                        statement2=statement2.strip(),
+                        options=options.lower().strip(),
+                    )
+                    for statement1, statement2, options in zip(
+                        sample["statement1_char"],
+                        sample["statement2_char"],
+                        sample["options"],
+                    )
+                ]
+            else:
+                inputs = [
+                    input_template.format(
+                        statement1=statement1.strip(),
+                        statement2=statement2.strip(),
+                        options=options.lower().strip(),
+                    )
+                    for statement1, statement2, options in zip(
+                        sample["statement1"], sample["statement2"], sample["options"]
+                    )
+                ]
         answers = [answer.strip().lower() for answer in sample["answer"]]
         texts = []
         for input, answer in zip(inputs, answers):
@@ -347,6 +361,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--rank", type=int, default=8, help="rank")
     parser.add_argument("--lora_alpha", type=float, default=16, help="lora_alpha")
+    parser.add_argument("--is_text_base", default=False, help="whether to use text")
     args = parser.parse_args()
 
     run(args)

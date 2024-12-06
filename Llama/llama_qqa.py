@@ -214,24 +214,34 @@ def predict_and_save_res(args, tokenizer=None, dataset=None):
 
 def run(args):
     def preprocess_function(sample):
-        if args.is_digit_base:
+        if args.is_text_base:
             inputs = [
                 input_template.format(
                     question=question, option1=option1, option2=option2
                 )
                 for question, option1, option2 in zip(
-                    sample["question_char"], sample["Option1"], sample["Option2"]
+                    sample["question_text"], sample["Option1"], sample["Option2"]
                 )
             ]
         else:
-            inputs = [
-                input_template.format(
-                    question=question, option1=option1, option2=option2
-                )
-                for question, option1, option2 in zip(
-                    sample["question"], sample["Option1"], sample["Option2"]
-                )
-            ]
+            if args.is_digit_base:
+                inputs = [
+                    input_template.format(
+                        question=question, option1=option1, option2=option2
+                    )
+                    for question, option1, option2 in zip(
+                        sample["question_char"], sample["Option1"], sample["Option2"]
+                    )
+                ]
+            else:
+                inputs = [
+                    input_template.format(
+                        question=question, option1=option1, option2=option2
+                    )
+                    for question, option1, option2 in zip(
+                        sample["question"], sample["Option1"], sample["Option2"]
+                    )
+                ]
 
         labels = []
         for answer, option1, option2 in zip(
@@ -382,6 +392,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--rank", type=int, default=8, help="rank")
     parser.add_argument("--lora_alpha", type=float, default=16, help="lora_alpha")
+    parser.add_argument("--is_text_base", default=False, help="whether to use text")
     args = parser.parse_args()
 
     run(args)
