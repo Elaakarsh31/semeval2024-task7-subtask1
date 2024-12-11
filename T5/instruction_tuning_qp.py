@@ -26,6 +26,13 @@ from instruction_config import *
 from peft import LoraConfig, get_peft_model, TaskType
 
 
+def safe_convert_to_int(value, default=0):
+    try:
+        return int(round(float(value.strip())))
+    except (ValueError, AttributeError, TypeError):
+        return default
+
+
 def get_lora_model(args):
     model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
     lora_config = LoraConfig(
@@ -54,7 +61,7 @@ def train_and_evaluate(args, tokenizer, tokenized_dataset):
         labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
         decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
 
-        decoded_preds = list(map(int, decoded_preds))
+        decoded_preds = [safe_convert_to_int(pred, default=0) for pred in decoded_preds]
         decoded_labels = list(map(int, decoded_labels))
 
         macro_f1 = f1_metric.compute(
@@ -164,7 +171,7 @@ def predict_and_save_res(
 
             preds += decode_pred_ans
 
-        preds = list(map(int, preds))
+        preds = [safe_convert_to_int(pred, default=0) for pred in preds]
         return preds
 
     f1_metric = evaluate.load(args.f1_metric_pth)
@@ -209,26 +216,32 @@ def predict_and_save_res(
     print("save predict res to: " + json_file_path)
     with open(json_file_path, "w", encoding="utf-8") as json_file:
         json.dump(save_res, json_file, ensure_ascii=False)
+    return micro_f1, macro_f1
 
 
 def run(args):
     def preprocess_function(sample):
         # add prefix to the input
-        if args.is_digit_base:
-            if args.dataset_type == "headline":
-                inputs = [
-                    input_template.format(masked=masked)
-                    for masked in sample["title_char"]
-                ]
+        if args.is_text_base:
+            inputs = [
+                input_template.format(masked=masked) for masked in sample["masked_text"]
+            ]
+        else:
+            if args.is_digit_base:
+                if args.dataset_type == "headline":
+                    inputs = [
+                        input_template.format(masked=masked)
+                        for masked in sample["title_char"]
+                    ]
+                else:
+                    inputs = [
+                        input_template.format(masked=masked)
+                        for masked in sample["comment_char"]
+                    ]
             else:
                 inputs = [
-                    input_template.format(masked=masked)
-                    for masked in sample["comment_char"]
+                    input_template.format(masked=masked) for masked in sample["masked"]
                 ]
-        else:
-            inputs = [
-                input_template.format(masked=masked) for masked in sample["masked"]
-            ]
 
         model_inputs = tokenizer(inputs, truncation=False)
 
@@ -287,7 +300,7 @@ def run(args):
         tokenized_dataset = datasets.map(
             preprocess_function, batched=True, remove_columns=["masked", "magnitude"]
         )
-        predict_and_save_res(args, tokenizer, tokenized_dataset, dataset_test)
+        return predict_and_save_res(args, tokenizer, tokenized_dataset, dataset_test)
 
 
 if __name__ == "__main__":
@@ -344,6 +357,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--rank", type=int, default=8, help="rank")
     parser.add_argument("--lora_alpha", type=float, default=16, help="lora_alpha")
+    parser.add_argument("--is_text_base", default=False, help="whether to use text")
     args = parser.parse_args()
 
     run(args)

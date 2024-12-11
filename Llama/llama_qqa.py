@@ -278,7 +278,7 @@ def run(args):
     data_test_pth = args.data_test_pth
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     datasets = DatasetDict()
-    system_prompt = "You are an AI language model that predicts the relationship between two statements based on the options provided. Your task is to select the most appropriate relationship from the given options."
+    system_prompt = "You are a highly intelligent AI model trained to answer quantitative reasoning questions with precision and logical reasoning. Your task is to analyze and understand a given question, assess the provided numerical data, and select the most accurate answer from two possible choices."
 
     if args.task == "train":
         dataset_train = read_jsonl(data_train_pth)[0]

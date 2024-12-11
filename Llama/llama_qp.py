@@ -267,7 +267,7 @@ def run(args):
     data_test_pth = args.data_test_pth
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     datasets = DatasetDict()
-    system_prompt = "You are an AI language model that predicts the relationship between two statements based on the options provided. Your task is to select the most appropriate relationship from the given options."
+    system_prompt = "You are a highly intelligent AI model trained to predict the magnitude of masked numerals within a given context. Your task is to understand the context, use logic, and predict the most accurate magnitude for a masked number."
 
     if args.task == "train":
         dataset_train = read_jsonl(data_train_pth)[0]
