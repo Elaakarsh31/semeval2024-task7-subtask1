@@ -1,5 +1,5 @@
 # semeval2024-task7-subtask1
-Final project for CS6120 NLP, by Junxin Zheng, Divyank Singh, Aakarsh Arora
+ - by Aakarsh Arora, Junxin Zheng, Divyank Singh
 
 # Task Description
 https://sites.google.com/view/numeval/tasks?authuser=0#h.uin1dj2oxo8t
