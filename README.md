@@ -12,18 +12,140 @@ https://drive.google.com/drive/folders/10uQI2BZrtzaUejtdqNU9Sp1h0H9zhLUE?usp=sha
 ## Reproduce the experiments with Flan-T5 from:
 [[2] Chen, Kaiyuan, Jin Wang, and Xuejie Zhang. "YNU-HPCC at SemEval-2024 Task 7: Instruction Fine-tuning Models for Numerical Understanding and Generation." Proceedings of the 18th International Workshop on Semantic Evaluation (SemEval-2024). June 20-21, 2024.](https://aclanthology.org/2024.semeval-1.141/)
 
-# To Reproduce our experiments for BERT, T5, and Llama models:
+# Quantitative Understanding Tasks 🔢
 
-## BERT:
-Navigate to the `./BERT`, and execute notebooks (`BERT_QNLI.ipynb` or `Bert_QP.ipynb`).
+This repository contains the implementation of tasks from SemEval-2024's Quantitative Understanding (QU) challenge, focusing on numerical reasoning and comprehension by language models. We address three main tasks—Quantitative Prediction (QP), Quantitative Natural Language Inference (QNLI), and Quantitative Question Answering (QQA)—using multiple architectures and preprocessing techniques to enhance model performance on numeric data.
 
-## T5:
-1. Navigate to the `./T5`.  
-2. Install necessary dependencies as specified in `colab_requirements.txt`.  
-3. Run training and evaluation by executing the Jupyter notebooks or scripts (`{task}_train_reproduction.ipynb`, `{task}_test_reproduction.ipynb/.py`)in this directory.  
+---
 
-## Llama:
-1. Navigate to the `./Llama`.  
-2. Make sure to run it with Linux machines or WSL since `Unsloth` only supports Linux environments.  
-3. Follow the instructions in the llama_* notebooks (e.g., llama_qnli_train.ipynb, llama_qqa_train.ipynb).  
-4. Execute these notebooks or scripts to train and evaluate Llama models on the specified tasks.  
+## **Table of Contents**
+1. [Overview 🔎](#overview)
+2. [Data Preparation 📊](#data-preparation)
+3. [Preprocessing and Modifications 🔄](#preprocessing-and-modifications)
+4. [Implemented Tasks 🔢](#implemented-tasks)
+5. [Model Architectures 🔧](#model-architectures)
+6. [Results and Observations 📊](#results-and-observations)
+7. [Running the Notebooks 🔄](#running-the-notebooks)
+
+---
+
+## **Overview**
+
+Numerical reasoning is vital for improving language models’ understanding of domains such as legal, financial, and scientific texts. Tasks involving numerical data require models to:
+- Predict numerical magnitudes from context (QP).
+- Infer relationships between numerical statements (QNLI).
+- Answer numeric questions using reasoning (QQA).
+
+This repository provides:
+- Fine-tuned implementations of **BERT**, **Flan-T5**, and **LLaMA 3.2**.
+- Preprocessing strategies such as numerical conversion and input reframing.
+- Templates for instruction tuning and chain-of-thought prompting.
+
+---
+
+## **Data Preparation** 📊
+
+The project uses the **Quantitative 101 dataset**, which aggregates three benchmarks:
+
+1. **Numeracy-600K**:
+   - 600,000 instances of market comments and news headlines.
+   - An 8-class classification task requiring magnitude prediction.
+2. **EQUATE**:
+   - Binary or 3-class classification tasks with subsets such as RTE-QUANT, AWP-NLI, and Reddit-NLI.
+   - Tests numerical inference in diverse linguistic contexts.
+3. **NumGLUE**:
+   - Binary classification for answering numerical questions, requiring comprehension of numerical semantics.
+
+Each dataset underwent extensive preprocessing for compatibility with models and numeric reasoning tasks.
+
+---
+
+## **Preprocessing and Modifications** 🔄
+
+### **Input Notations**
+To test model performance on various numerical representations, the datasets were transformed into the following formats:
+1. **Original Notation**: Raw numerical values (e.g., 1234).
+2. **Digit-Based Notation**: Numbers tokenized into individual digits (e.g., 1 2 3 4).
+3. **Scientific Notation**: Numbers represented with mantissa and exponent (e.g., 1.23 × 10^3).
+
+### **Numerical Conversion**
+All numeric data (e.g., decimals, integers) were also converted to their English word forms using the `num2text` Python library. For example:
+- **"3.14"** becomes **"three point one-four"**.
+- **"10,000"** becomes **"ten thousand"**.
+
+#### **Conversion Steps**:
+1. Clean strings by removing special characters (currency symbols, colons) and commas, retaining decimals.
+2. Identify numeric entries using regex and apply the `num2text` conversion for decimals and integers.
+
+### **Chain-of-Thought (CoT) Prompting**
+Instruction-tuned models like Flan-T5 were prompted using chain-of-thought (CoT) reasoning to explicitly model step-by-step numerical reasoning. This approach enhances comprehension and decision-making in numerical tasks.
+
+---
+
+## **Implemented Tasks** 🔢
+
+### **1. Quantitative Prediction (QP)**
+- **Objective**: Predict the magnitude of masked numbers in market comments and headlines.
+- **Input Example**:
+  - *Masked Input*: "The interest rate rose to [Num] percent."
+  - *Prediction*: Magnitude class (e.g., `4` for a number between 100 and 1000).
+- **Model Setup**:
+  - Fine-tuned BERT and Flan-T5 models with `num_labels=8`.
+
+### **2. Quantitative Natural Language Inference (QNLI)**
+- **Objective**: Determine whether a statement entails, contradicts, or is neutral to another.
+- **Input Example**:
+  - Statement 1: "The company reported revenue of $1 billion."
+  - Statement 2: "The revenue was above $2 billion."
+  - *Label*: Contradiction.
+- **Model Setup**:
+  - Implemented BERT and Flan-T5 for binary (entailment/contradiction) and 3-class classification (entailment/contradiction/neutral).
+
+### **3. Quantitative Question Answering (QQA)**
+- **Objective**: Answer numeric questions based on contextual reasoning.
+- **Input Example**:
+  - Question: "If the interest rate doubles from 2%, what will it be?"
+  - *Answer*: "4%."
+- **Model Setup**:
+  - Flan-T5 was instruction-tuned for numeric reasoning.
+  - LLaMA 3.2 used chat templates for structured input.
+
+---
+
+## **Model Architectures** 🔧
+
+1. **BERT**:
+   - Encoder-only architecture for contextual text understanding.
+   - Fine-tuned for QP and QNLI tasks.
+
+2. **Flan-T5**:
+   - Instruction-tuned encoder-decoder model.
+   - Applied for all tasks using templates for task-specific prompting.
+
+3. **LLaMA 3.2**:
+   - Decoder-only model with Quantized Low-Rank Adaptation (QLoRA) for efficient fine-tuning.
+   - Outperformed Flan-T5 on QQA tasks, particularly with chat templates.
+
+---
+
+## **Results and Observations** 📊
+
+### Performance Comparison:
+- **BERT**: Strong baseline for QP and QNLI tasks.
+- **Flan-T5**: Excellent performance on digit-based inputs due to instruction tuning.
+- **LLaMA 3.2**: Best results on QQA tasks, leveraging its generative capabilities and structured chat templates.
+
+### Dataset Visualizations:
+![Insert dataset visualizations/graphs here](#)
+
+---
+
+## **Running the Notebooks** 🔄
+
+### **Setup**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo-link.git
+   cd your-repo-folder
+
+
