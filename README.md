@@ -137,7 +137,7 @@ Instruction-tuned models like Flan-T5 were prompted using chain-of-thought (CoT)
 
 ### Dataset Visualizations:
 
-<div style="display: flex; justify-content: space-around;">
+<div style="display: flex; justify-content: space-between; gap: 10px;">
   <img src="https://github.com/user-attachments/assets/bbca991e-c7ab-4224-90ed-cab92c8d0bd4" alt="Image 1" width="24%" height="24%">
    
   <img src="https://github.com/user-attachments/assets/9fb2897a-63bb-4f7d-8028-d09f7a15fd3c" alt="Image 2" width="24%" height="24%">
