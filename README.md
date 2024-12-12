@@ -136,7 +136,15 @@ Instruction-tuned models like Flan-T5 were prompted using chain-of-thought (CoT)
 - **LLaMA 3.2**: Best results on QQA tasks, leveraging its generative capabilities and structured chat templates.
 
 ### Dataset Visualizations:
-![Insert dataset visualizations/graphs here](#)
+
+![image](https://github.com/user-attachments/assets/bbca991e-c7ab-4224-90ed-cab92c8d0bd4)
+
+![image](https://github.com/user-attachments/assets/9fb2897a-63bb-4f7d-8028-d09f7a15fd3c)
+
+![image](https://github.com/user-attachments/assets/032ca81f-7512-4a24-b127-472fa116c5e9)
+
+![image](https://github.com/user-attachments/assets/e035cfab-6395-4410-944d-632a5d85529e)
+
 
 ---
 
@@ -147,5 +155,16 @@ Instruction-tuned models like Flan-T5 were prompted using chain-of-thought (CoT)
    ```bash
    git clone https://github.com/your-repo-link.git
    cd your-repo-folder
+   ```
+2. Install dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Download the Quantitative 101 dataset and place it in the ```data/``` directory.
+
+## Contributing 🤝
+
+We welcome contributions to improve the project! Please submit issues or pull requests via GitHub.
+
 
 
