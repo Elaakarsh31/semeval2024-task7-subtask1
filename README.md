@@ -138,19 +138,14 @@ Instruction-tuned models like Flan-T5 were prompted using chain-of-thought (CoT)
 ### Dataset Visualizations:
 
 <div style="display: flex; justify-content: space-around;">
-  <img src="https://github.com/user-attachments/assets/bbca991e-c7ab-4224-90ed-cab92c8d0bd4" alt="Image 1" width="24%">
-  <img src="https://github.com/user-attachments/assets/9fb2897a-63bb-4f7d-8028-d09f7a15fd3c" alt="Image 2" width="24%">
-  <img src="https://github.com/user-attachments/assets/032ca81f-7512-4a24-b127-472fa116c5e9" alt="Image 3" width="24%">
-  <img src="https://github.com/user-attachments/assets/e035cfab-6395-4410-944d-632a5d85529e" alt="Image 4" width="24%">
+  <img src="https://github.com/user-attachments/assets/bbca991e-c7ab-4224-90ed-cab92c8d0bd4" alt="Image 1" width="24%" height="24%">
+   
+  <img src="https://github.com/user-attachments/assets/9fb2897a-63bb-4f7d-8028-d09f7a15fd3c" alt="Image 2" width="24%" height="24%>
+  
+  <img src="https://github.com/user-attachments/assets/032ca81f-7512-4a24-b127-472fa116c5e9" alt="Image 3" width="24%" height="24%>
+  
+  <img src="https://github.com/user-attachments/assets/e035cfab-6395-4410-944d-632a5d85529e" alt="Image 4" width="24%" height="24%>
 </div>
-![image](https://github.com/user-attachments/assets/bbca991e-c7ab-4224-90ed-cab92c8d0bd4)
-
-![image](https://github.com/user-attachments/assets/9fb2897a-63bb-4f7d-8028-d09f7a15fd3c)
-
-![image](https://github.com/user-attachments/assets/032ca81f-7512-4a24-b127-472fa116c5e9)
-
-![image](https://github.com/user-attachments/assets/e035cfab-6395-4410-944d-632a5d85529e)
-
 
 ---
 
